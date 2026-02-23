@@ -29,11 +29,27 @@ def convert_units(value:float,from_unit:str,to_unit:str)-> str:
 @tool
 def solve_math(expression:str) -> str:
     '''Useful for solving mathematical expressions'''
-    import sympy
+    import sympy as sp
     print("Tool Trigger")
     try:
-        result = sympy.solve(expression).evalf()
-        return f"Solution is {result}"
+        expr = sp.sympify(expression)
+        symbols = expr.free_symbols
+        if symbols:
+            sols = sp.solve(expr)
+            if not sols:
+                return "No algebraic solutions found."
+            # Format solutions (numeric if possible)
+            formatted = []
+            for s in sols:
+                try:
+                    formatted.append(str(sp.N(s)))
+                except Exception:
+                    formatted.append(str(s))
+            return f"Solutions: {', '.join(formatted)}"
+        else:
+            # Pure numeric expression; evaluate
+            val = sp.N(expr)
+            return f"Result: {val}"
     except Exception as e:
         return f"math error: {e}"
 
